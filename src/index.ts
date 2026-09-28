@@ -2,3 +2,6 @@ export * from './identity';
 export * from './roles';
 export * from './session';
 export * from './host';
+export * from './rng';
+export * from './storage';
+export * from './log';

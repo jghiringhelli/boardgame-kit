@@ -13,7 +13,10 @@
     "./identity": "./src/identity.ts",
     "./roles": "./src/roles.ts",
     "./session": "./src/session.ts",
-    "./host": "./src/host.ts"
+    "./host": "./src/host.ts",
+    "./rng": "./src/rng.ts",
+    "./storage": "./src/storage.ts",
+    "./log": "./src/log.ts"
   },
   "peerDependencies": {
     "peerjs": ">=1.5",
