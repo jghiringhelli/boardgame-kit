@@ -1,0 +1,32 @@
+{
+  "name": "boardgame-kit",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Shared, engine-agnostic multiplayer plumbing (peer-to-peer session transport, seat/roster model, stable local identity, host-authoritative reducer helpers) extracted from parallel duplication across this workspace's digital boardgame ports (starcraft-tbg, meq). Consumed as raw TypeScript source (no build step) since every consumer already runs Vite/esbuild, which transpiles .ts from node_modules directly.\n\nDesign inspired by johnchampaign/digital-boardgame-framework (MIT, https://www.npmjs.com/package/digital-boardgame-framework) — specifically its small GameAdapter shape (applyAction/legalActions/currentActor/viewFor) and pluggable-store philosophy — but reimplemented from scratch for this workspace's fully peer-to-peer (PeerJS, no backend/Supabase) architecture rather than adopting that library directly.",
+  "types": "./src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p ."
+  },
+  "exports": {
+    "./identity": "./src/identity.ts",
+    "./roles": "./src/roles.ts",
+    "./session": "./src/session.ts",
+    "./host": "./src/host.ts"
+  },
+  "peerDependencies": {
+    "peerjs": ">=1.5",
+    "react": ">=18"
+  },
+  "dependencies": {
+    "peerjs": "^1.5.5"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "happy-dom": "^20.14.5",
+    "react": "^19.3.0",
+    "typescript": "^5.6.3",
+    "vitest": "^5.0.2"
+  }
+}
