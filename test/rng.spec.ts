@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { nextRandom, nextInt, shuffle } from '../src/rng';
+import { nextRandom, nextInt, shuffle, weightedPick } from '../src/rng';
 
 // Reference implementation copied verbatim from meq's original
 // src/engine/rng.ts (pre-extraction) — locks in that this module's output is
@@ -59,7 +59,6 @@ describe('nextInt', () => {
       expect(Number.isInteger(r.value)).toBe(true);
       expect(r.value).toBeGreaterThanOrEqual(0);
       expect(r.value).toBeLessThan(6);
-      cursor = r.cursor;
     }
   });
 });
@@ -92,5 +91,50 @@ describe('shuffle', () => {
     // the real assertion is just that the cursor moved at all.
     expect(a.cursor).not.toBe(1);
     expect(b.cursor).not.toBe(a.cursor);
+  });
+});
+
+describe('weightedPick', () => {
+  it('always picks the only weighted option when others are 0', () => {
+    let cursor = 1;
+    for (let i = 0; i < 50; i++) {
+      const r = weightedPick(cursor, [0, 5, 0]);
+      expect(r.value).toBe(1);
+      cursor = r.cursor;
+    }
+  });
+
+  it('never returns an out-of-range index', () => {
+    let cursor = 3;
+    for (let i = 0; i < 300; i++) {
+      const r = weightedPick(cursor, [1, 2, 3, 4]);
+      expect(r.value).toBeGreaterThanOrEqual(0);
+      expect(r.value).toBeLessThan(4);
+      cursor = r.cursor;
+    }
+  });
+
+  it('is deterministic for a given cursor', () => {
+    const a = weightedPick(42, [1, 1, 1]);
+    const b = weightedPick(42, [1, 1, 1]);
+    expect(a).toEqual(b);
+  });
+
+  it('respects proportional weighting over many draws', () => {
+    let cursor = 7;
+    const counts = [0, 0];
+    for (let i = 0; i < 5000; i++) {
+      const r = weightedPick(cursor, [1, 9]); // ~10% / ~90%
+      counts[r.value]++;
+      cursor = r.cursor;
+    }
+    const ratio = counts[1]! / (counts[0]! + counts[1]!);
+    expect(ratio).toBeGreaterThan(0.8);
+    expect(ratio).toBeLessThan(0.98);
+  });
+
+  it('treats an all-zero weight list as a safe no-op (returns index 0)', () => {
+    const r = weightedPick(1, [0, 0, 0]);
+    expect(r.value).toBe(0);
   });
 });

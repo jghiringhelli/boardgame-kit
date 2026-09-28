@@ -52,3 +52,22 @@ export function shuffle<T>(cursor: number, arr: readonly T[]): ShuffleResult<T> 
   }
   return { items: out, cursor: c };
 }
+
+/**
+ * Picks an index from `weights` with probability proportional to its value
+ * (all weights must be >= 0; at least one must be > 0). Useful for an AI that
+ * wants to weight its options (e.g. by a heuristic score) instead of always
+ * taking the single best-scoring move — still fully reproducible from the
+ * seed, just less predictable to an opponent than a deterministic argmax.
+ */
+export function weightedPick(cursor: number, weights: readonly number[]): RngResult {
+  const total = weights.reduce((sum, w) => sum + Math.max(0, w), 0);
+  if (total <= 0) return { value: 0, cursor };
+  const r = nextRandom(cursor);
+  let roll = r.value * total;
+  for (let i = 0; i < weights.length; i++) {
+    roll -= Math.max(0, weights[i]!);
+    if (roll < 0) return { value: i, cursor: r.cursor };
+  }
+  return { value: weights.length - 1, cursor: r.cursor };
+}

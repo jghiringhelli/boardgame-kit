@@ -6,3 +6,5 @@ export * from './rng';
 export * from './storage';
 export * from './log';
 export * from './deck';
+export * from './undo';
+export * from './download';

@@ -17,7 +17,9 @@
     "./rng": "./src/rng.ts",
     "./storage": "./src/storage.ts",
     "./log": "./src/log.ts",
-    "./deck": "./src/deck.ts"
+    "./deck": "./src/deck.ts",
+    "./undo": "./src/undo.ts",
+    "./download": "./src/download.ts"
   },
   "peerDependencies": {
     "peerjs": ">=1.5",
