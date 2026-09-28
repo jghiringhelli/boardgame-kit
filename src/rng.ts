@@ -11,13 +11,20 @@ export interface RngResult {
   cursor: number;
 }
 
-/** Advances the cursor and returns a float in [0, 1). */
+/**
+ * Advances the cursor and returns a float in [0, 1). Standard mulberry32:
+ * note the returned/persisted cursor is the post-increment, PRE-mix value —
+ * the further avalanche mixing below is recomputed from scratch on every
+ * call and never itself carried forward. Preserve this exactly; changing it
+ * changes every game's random stream from that point on.
+ */
 export function nextRandom(cursor: number): RngResult {
-  let t = (cursor + 0x6d2b79f5) | 0;
+  const c = (cursor + 0x6d2b79f5) | 0;
+  let t = c;
   t = Math.imul(t ^ (t >>> 15), t | 1);
   t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
   const value = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  return { value, cursor: t >>> 0 };
+  return { value, cursor: c };
 }
 
 /** Advances the cursor and returns an integer in [0, maxExclusive). */

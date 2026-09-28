@@ -1,6 +1,32 @@
 import { describe, it, expect } from 'vitest';
 import { nextRandom, nextInt, shuffle } from '../src/rng';
 
+// Reference implementation copied verbatim from meq's original
+// src/engine/rng.ts (pre-extraction) — locks in that this module's output is
+// bit-for-bit identical, since existing saved games' `rngCursor` must
+// continue producing the exact same stream after this refactor.
+function referenceNextInt(cursor: number, maxExclusive: number): { value: number; cursor: number } {
+  let t = (cursor = (cursor + 0x6d2b79f5) | 0);
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  const r = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  return { value: Math.floor(r * maxExclusive), cursor };
+}
+
+describe('bit-for-bit parity with the pre-extraction meq implementation', () => {
+  it('matches the reference formula across many seeds and draws', () => {
+    let cursor = 0;
+    let refCursor = 0;
+    for (let i = 0; i < 1000; i++) {
+      const a = nextInt(cursor, 100);
+      const b = referenceNextInt(refCursor, 100);
+      expect(a).toEqual(b);
+      cursor = a.cursor;
+      refCursor = b.cursor;
+    }
+  });
+});
+
 describe('nextRandom', () => {
   it('is deterministic: same cursor always produces the same result', () => {
     const a = nextRandom(12345);

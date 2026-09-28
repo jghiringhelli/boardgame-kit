@@ -15,6 +15,24 @@ future titles):
 - `host.ts` — pure host-side reducer helpers (`applyRemoteAction`, `claimSeat`,
   `dropPlayer`) that enforce per-seat ownership before dispatching into the
   game's own reducer.
+- `rng.ts` — pure, cursor-based seeded PRNG (mulberry32): `nextRandom`/
+  `nextInt`/`shuffle`. Every function takes the current numeric cursor and
+  returns `{ value, cursor }` — the caller owns where that cursor lives
+  (typically a `rngCursor` field on the game's own state), so full games stay
+  bit-reproducible from a single seed.
+- `storage.ts` — namespaced localStorage helpers (`safeGet`/`safeSet`/
+  `safeRemove`, never throwing even in private browsing or when disabled) plus
+  factories for the three recurring persistence patterns: `createSaveSlot`
+  (one resumable in-progress game), `createHistoryStore` (an append-only,
+  capped history of finished games), `createNotesStore` (free-text per-game/
+  per-author notes, deliberately never part of game state so they can't leak
+  over the network), and `createCrashStore` (a last-uncaught-error stash for
+  bug reports).
+- `log.ts` — `createLogger`, a generic append-only structured event logger
+  factory. Parametrize it with a `getContext(state)` callback returning
+  whatever per-event fields matter for that game (turn/round/phase/side,
+  etc.); it merges those onto every logged event alongside the universal
+  `seq`/`type`/`actor`/`detail`/`data` fields.
 
 Each game keeps its own engine, its own action/state types, and its own
 `net/roles.ts`-style thin wrapper providing the game-specific bits this
@@ -47,7 +65,10 @@ This package deliberately reimplements a **narrower** scope from scratch
 (peer-to-peer only, no backend/Supabase dependency, no async/hosted play)
 rather than adopting `digital-boardgame-framework` directly, since both
 `starcraft-tbg` and `meq` are architected around a fully serverless
-WebRTC/PeerJS session model. If a future title needs asynchronous
+WebRTC/PeerJS session model. `rng.ts`/`storage.ts`/`log.ts` cover that
+framework's seeded-RNG and persistence concerns already; still missing here:
+a hosted/async `GameServer`, the `ChoiceRequest`/`EffectContext` pause-resume
+protocol, and a `useGame` React hook. If a future title needs asynchronous
 (non-realtime) play, `digital-boardgame-framework`'s `GameServer` + pluggable
 store is worth adopting directly for that title rather than reinventing it
 here.
