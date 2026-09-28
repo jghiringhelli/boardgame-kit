@@ -5,3 +5,4 @@ export * from './host';
 export * from './rng';
 export * from './storage';
 export * from './log';
+export * from './deck';

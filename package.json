@@ -16,7 +16,8 @@
     "./host": "./src/host.ts",
     "./rng": "./src/rng.ts",
     "./storage": "./src/storage.ts",
-    "./log": "./src/log.ts"
+    "./log": "./src/log.ts",
+    "./deck": "./src/deck.ts"
   },
   "peerDependencies": {
     "peerjs": ">=1.5",
